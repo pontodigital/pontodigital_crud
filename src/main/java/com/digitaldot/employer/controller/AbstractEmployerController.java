@@ -41,7 +41,7 @@ public abstract class AbstractEmployerController {
 //    }
 
     @PostMapping("/-")
-    public ResponseEntity<EmployerDto> createJoinUser(@Valid @RequestBody Employer employer, BindingResult result)
+    public ResponseEntity<EmployerDto> createJoinUser(@RequestBody Employer employer)
             throws ApiException, ValidatorErrorException {
 
         if (validator.hasErros(employer)) {
