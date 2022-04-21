@@ -10,11 +10,11 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>com.pontodigital</groupId>
-	<artifactId>crud</artifactId>
+	<groupId>com.digitaldot</groupId>
+	<artifactId>employer</artifactId>
 	<version>1.0.0</version>
 	<name>Crud</name>
-	<description>Crud for register Digital not</description>
+	<description>api of register for employers and users</description>
 
 	<properties>
 		<java.version>11</java.version>
