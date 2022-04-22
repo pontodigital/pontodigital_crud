@@ -11,12 +11,12 @@ public interface IEmployerService {
 
     List<EmployerDto> listAll();
 
-    Employer findByName (String name);
+    EmployerDto findById(String id) throws ApiException;
 
     EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException;
 
     Employer update (Employer employer);
 
-    void delete(String name);
+    void deleteEmployerJoinUser(String id) throws ApiException;
 
 }

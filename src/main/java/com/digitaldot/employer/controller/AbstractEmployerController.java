@@ -8,9 +8,7 @@ import com.digitaldot.employer.service.interfaces.IValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,10 +25,10 @@ public abstract class AbstractEmployerController {
         return ResponseEntity.ok(employerService.listAll());
     }
 
-//    @GetMapping("/")
-//    public ResponseEntity<Employer> findByName (@RequestParam(name = "name") String name){
-//        return ResponseEntity.ok(employerService.findByName(name));
-//    }
+    @GetMapping("/-/{id}")
+    public ResponseEntity<EmployerDto> findById(@PathVariable String id) throws ApiException {
+        return ResponseEntity.ok(employerService.findById(id)) ;
+    }
 
     @PostMapping("/-")
     public ResponseEntity<EmployerDto> createJoinUser(@RequestBody EmployerDto employer)
@@ -54,9 +52,9 @@ public abstract class AbstractEmployerController {
 //        return ResponseEntity.ok( new Response<>(employerService.update(employer)));
 //    }
 
-//    @DeleteMapping(value = "/")
-//    public ResponseEntity <Response<Integer>> remover(@RequestParam(name = "name")String name){
-//        employerService.delete(name);
-//        return ResponseEntity.ok(new Response<>(1));
-//    }
+    @DeleteMapping(value = "/-/{id}")
+    public ResponseEntity<Integer> deleteEmployerJoinUser(@PathVariable String id) throws ApiException {
+        employerService.deleteEmployerJoinUser(id);
+        return ResponseEntity.ok().build();
+    }
 }

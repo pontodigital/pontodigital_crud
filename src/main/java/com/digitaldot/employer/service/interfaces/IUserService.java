@@ -5,5 +5,7 @@ import com.digitaldot.employer.model.dto.UserDto;
 
 public interface IUserService {
 
-    UserDto create(UserDto user) throws ApiException;
+    UserDto createUser(UserDto user) throws ApiException;
+
+    void deleteUser(String id);
 }

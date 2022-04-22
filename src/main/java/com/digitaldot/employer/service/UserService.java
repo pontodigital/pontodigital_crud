@@ -14,15 +14,13 @@ import static java.util.Objects.nonNull;
 
 @Service
 public class UserService implements IUserService {
-
     @Autowired
-    UserRepository userRepository;
-
+    private UserRepository userRepository;
     @Autowired
-    UserMapper userMapper;
+    private UserMapper userMapper;
 
     @Override
-    public UserDto create(UserDto user) throws ApiException {
+    public UserDto createUser(UserDto user) throws ApiException {
 
         User userExists = userRepository.findByEmail(user.getEmail());
         if (nonNull(userExists)) {
@@ -36,5 +34,10 @@ public class UserService implements IUserService {
         User userDomain = userRepository.save(userMapper.toDomain(user));
 
         return userMapper.toDto(userDomain);
+    }
+
+    @Override
+    public void deleteUser(String id) {
+        userRepository.deleteById(id);
     }
 }
