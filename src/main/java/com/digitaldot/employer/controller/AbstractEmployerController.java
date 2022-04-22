@@ -1,20 +1,18 @@
 package com.digitaldot.employer.controller;
 
+import com.digitaldot.employer.exceptions.ApiException;
+import com.digitaldot.employer.exceptions.ValidatorErrorException;
 import com.digitaldot.employer.model.Employer;
 import com.digitaldot.employer.model.dto.EmployerDto;
 import com.digitaldot.employer.service.interfaces.IEmployerService;
 import com.digitaldot.employer.service.interfaces.IValidator;
-import com.digitaldot.employer.exceptions.ApiException;
-import com.digitaldot.employer.exceptions.ValidatorErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
 import java.util.List;
 
 public abstract class AbstractEmployerController {
@@ -41,7 +39,7 @@ public abstract class AbstractEmployerController {
 //    }
 
     @PostMapping("/-")
-    public ResponseEntity<EmployerDto> createJoinUser(@RequestBody Employer employer)
+    public ResponseEntity<EmployerDto> createJoinUser(@RequestBody EmployerDto employer)
             throws ApiException, ValidatorErrorException {
 
         if (validator.hasErros(employer)) {

@@ -19,6 +19,10 @@ public class EmployerMapper {
         return mapper.map(employer, EmployerDto.class);
     }
 
+    public Employer toDomain(EmployerDto employerDto) {
+        return mapper.map(employerDto, Employer.class);
+    }
+
     public List<EmployerDto> toArrayDto(List<Employer> listEmployerDomain) {
         return listEmployerDomain
                 .stream()

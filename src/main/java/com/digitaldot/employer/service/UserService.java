@@ -22,7 +22,7 @@ public class UserService implements IUserService {
     UserMapper userMapper;
 
     @Override
-    public UserDto create(User user) throws ApiException {
+    public UserDto create(UserDto user) throws ApiException {
 
         User userExists = userRepository.findByEmail(user.getEmail());
         if (nonNull(userExists)) {
@@ -33,6 +33,8 @@ public class UserService implements IUserService {
             throw new ApiException("username already exists", HttpStatus.BAD_REQUEST.value());
         }
 
-        return userMapper.toDto(userRepository.save(user));
+        User userDomain = userRepository.save(userMapper.toDomain(user));
+
+        return userMapper.toDto(userDomain);
     }
 }

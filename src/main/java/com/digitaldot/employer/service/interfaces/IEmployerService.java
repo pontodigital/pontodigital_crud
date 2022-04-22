@@ -9,13 +9,11 @@ import java.util.List;
 
 public interface IEmployerService {
 
-    EmployerDto findByNameDto(String name);
-
     List<EmployerDto> listAll();
 
     Employer findByName (String name);
 
-    EmployerDto createJoinUser(Employer employer) throws ApiException;
+    EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException;
 
     Employer update (Employer employer);
 
