@@ -1,9 +1,9 @@
 package com.digitaldot.employer.service.interfaces;
 
 
-import com.digitaldot.employer.model.Employer;
-import com.digitaldot.employer.model.dto.EmployerDto;
 import com.digitaldot.employer.exceptions.ApiException;
+import com.digitaldot.employer.model.dto.EmployerDto;
+import com.digitaldot.employer.model.dto.EmployerUpdateDto;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public interface IEmployerService {
 
     EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException;
 
-    Employer update (Employer employer);
+    EmployerUpdateDto update (String id, EmployerUpdateDto employer) throws ApiException;
 
     void deleteEmployerJoinUser(String id) throws ApiException;
 

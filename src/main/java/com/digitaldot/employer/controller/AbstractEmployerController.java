@@ -3,6 +3,7 @@ package com.digitaldot.employer.controller;
 import com.digitaldot.employer.exceptions.ApiException;
 import com.digitaldot.employer.exceptions.ValidatorErrorException;
 import com.digitaldot.employer.model.dto.EmployerDto;
+import com.digitaldot.employer.model.dto.EmployerUpdateDto;
 import com.digitaldot.employer.service.interfaces.IEmployerService;
 import com.digitaldot.employer.service.interfaces.IValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 public abstract class AbstractEmployerController {
-
+    //TODO -> create filter for find employer
     @Autowired
     private IEmployerService employerService;
 
@@ -37,20 +38,20 @@ public abstract class AbstractEmployerController {
         if (validator.hasErros(employer)) {
             throw new ValidatorErrorException(validator.getAllErrors(), HttpStatus.BAD_REQUEST.value());
         }
-            return ResponseEntity.status(HttpStatus.CREATED).body(employerService.createJoinUser(employer));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(employerService.createJoinUser(employer));
     }
 
-//    @PutMapping(path = "/{name}")
-//    public ResponseEntity<Response<Employer>> update(@PathVariable String name, @Valid @RequestBody Employer employer, BindingResult result){
-//        if (result.hasErrors()){
-//            List<String> erros = new ArrayList<>();
-//            result.getAllErrors().forEach(erro -> erros.add(erro.getDefaultMessage()));
-//            return ResponseEntity.badRequest().body(new Response<>(erros));
-//        }
-//
-//        employer.setFirstName(name);
-//        return ResponseEntity.ok( new Response<>(employerService.update(employer)));
-//    }
+    @PutMapping(path = "/-/{id}")
+    public ResponseEntity<EmployerUpdateDto> update(@PathVariable String id, @RequestBody EmployerUpdateDto employer)
+            throws ApiException, ValidatorErrorException {
+
+        if (validator.hasErros(employer)) {
+            throw new ValidatorErrorException(validator.getAllErrors(), HttpStatus.BAD_REQUEST.value());
+        }
+
+        return ResponseEntity.ok(employerService.update(id, employer));
+    }
 
     @DeleteMapping(value = "/-/{id}")
     public ResponseEntity<Integer> deleteEmployerJoinUser(@PathVariable String id) throws ApiException {

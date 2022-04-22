@@ -19,4 +19,8 @@ public class UserMapper {
     public User toDomain(UserDto userDto) {
         return mapper.map(userDto, User.class);
     }
+
+//    public UserDto toUpdateDto(User user) {
+//        return mapper.map(user, UserDto.class);
+//    }
 }
