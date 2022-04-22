@@ -7,9 +7,11 @@ import com.digitaldot.employer.model.Employer;
 import com.digitaldot.employer.model.dto.EmployerDto;
 import com.digitaldot.employer.repository.employer.EmployerRepository;
 import com.digitaldot.employer.service.interfaces.IEmployerService;
+import com.digitaldot.employer.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,12 +20,12 @@ import static java.util.Objects.nonNull;
 
 @Service
 public class EmployerService implements IEmployerService {
-
+    //TODO -> add spring hateos
     @Autowired
     private EmployerRepository employerRepository;
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
     @Autowired
     private EmployerMapper employerMapper;
@@ -37,8 +39,10 @@ public class EmployerService implements IEmployerService {
     }
 
     @Override
-    public Employer findByName(String name) {
-        return this.employerRepository.findByFirstname(name);
+    public EmployerDto findById(String id) throws ApiException {
+
+        return employerMapper.toDto(employerRepository.findById(id)
+                .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value())));
     }
 
     @Override
@@ -52,7 +56,7 @@ public class EmployerService implements IEmployerService {
             throw new ApiException("employee already exists", HttpStatus.BAD_REQUEST.value());
         }
 
-        employerDto.setUser(userService.create(employerDto.getUser()));
+        employerDto.setUser(userService.createUser(employerDto.getUser()));
 
         Employer employerDomain = employerRepository.save(employerMapper.toDomain(employerDto));
 
@@ -64,8 +68,11 @@ public class EmployerService implements IEmployerService {
         return employerRepository.save(employer);
     }
 
+    @Transactional
     @Override
-    public void delete(String name) {
-        this.employerRepository.deleteById(name);
+    public void deleteEmployerJoinUser(String id) throws ApiException {
+        EmployerDto employerDto = this.findById(id);
+        userService.deleteUser(employerDto.getUser().getId());
+        employerRepository.deleteById(id);
     }
 }

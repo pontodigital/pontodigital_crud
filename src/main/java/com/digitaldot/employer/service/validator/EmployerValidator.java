@@ -1,6 +1,6 @@
 package com.digitaldot.employer.service.validator;
 
-import com.digitaldot.employer.model.Employer;
+import com.digitaldot.employer.model.dto.EmployerDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +18,11 @@ public class EmployerValidator extends AbstractValidator{
 
         List<String> errors = super.validate(obj);
 
-        if (!(obj instanceof Employer)) {
+        if (!(obj instanceof EmployerDto)) {
             return errors;
         }
 
-        Employer employer = (Employer) obj;
+        EmployerDto employer = (EmployerDto) obj;
         //firstName
         if (employer.getFirstName().length() < 3 || employer.getFirstName().length() > 10)
         {
@@ -58,17 +58,17 @@ public class EmployerValidator extends AbstractValidator{
             errors.add("document is not valid");
         }
         //phone
-        if (employer.getPhone().length() != 11)
+        if (employer.getPhone().length() < 10 || employer.getPhone().length() == 11 || employer.getPhone().length() > 12)
         {
-            errors.add("phone number is need 11 number");
+            errors.add("phone number is need 10 number or 12 with DDD");
+        }
+        else if (!validatorServices.isValidNumberPhone(employer.getPhone()))
+        {
+            errors.add("phone number is not valid");
         }
         if (!employer.getPhone().matches("\\d+"))
         {
             errors.add("only number is permission in phone number");
-        }
-        if (!validatorServices.isValidNumberPhone(employer.getPhone()))
-        {
-            errors.add("phone number is not valid");
         }
 
         setErros(errors);

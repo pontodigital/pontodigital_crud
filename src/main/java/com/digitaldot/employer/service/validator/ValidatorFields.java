@@ -1,5 +1,8 @@
 package com.digitaldot.employer.service.validator;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl;
 import org.springframework.stereotype.Service;
 
@@ -8,6 +11,8 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -34,17 +39,52 @@ public final class ValidatorFields implements ConstraintValidator<ValidField, St
             return isValidNumberPhone(s);
         }
         if (constraintsProvides.containsValue(ValidField.TypeValid.EMAIL.name())) {
-            //TODO -> necessary implementation
-            return true;
+            return isValidEmail(s);
+        }
+
+        return false;
+    }
+
+    public boolean isValidEmail(String email) {
+
+        if (email.length() > 0)
+        {
+            String regex = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$";
+            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(email);
+
+            if (matcher.matches())
+            {
+                return true;
+            }
         }
 
         return false;
     }
 
     public boolean isValidNumberPhone(String number) {
-        //TODO -> necessary implementation
+        number = checkHasDDD(number);
+        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+        Phonenumber.PhoneNumber phoneNumber = null;
 
-        return true;
+        try
+        {
+            phoneNumber = phoneUtil.parse(number, "BR");
+        }
+        catch (NumberParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return phoneUtil.isValidNumber(phoneNumber);
+    }
+
+    //It removed the ddd and not validate
+    private String checkHasDDD(String number) {
+        if (number.length() == 12) {
+            return number.substring(2, 12);
+        }
+        return number;
     }
 
     public boolean isValidCpf(int[] number) {

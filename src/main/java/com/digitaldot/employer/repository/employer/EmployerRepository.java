@@ -8,10 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EmployerRepository extends MongoRepository<Employer, String> {
 
-    @Query("{ 'name' : ?0 }")
-    void delete(String name);
-    @Query("{ 'name' : ?0 }")
-    Employer findByFirstname(String name);
     @Query("{ 'document' : ?0 }")
     Employer findByDocument(String document);
 }
