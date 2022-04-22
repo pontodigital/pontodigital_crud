@@ -2,7 +2,6 @@ package com.digitaldot.employer.controller;
 
 import com.digitaldot.employer.exceptions.ApiException;
 import com.digitaldot.employer.exceptions.ValidatorErrorException;
-import com.digitaldot.employer.model.Employer;
 import com.digitaldot.employer.model.dto.EmployerDto;
 import com.digitaldot.employer.service.interfaces.IEmployerService;
 import com.digitaldot.employer.service.interfaces.IValidator;
@@ -27,11 +26,6 @@ public abstract class AbstractEmployerController {
     public ResponseEntity<List<EmployerDto>> listAll(){
         return ResponseEntity.ok(employerService.listAll());
     }
-
-//    @GetMapping(value = "dto")
-//    public ResponseEntity<Response<EmployerDto>> findByNameDto(@RequestParam(name = "name") String name){
-//        return ResponseEntity.ok(new Response<>(employerService.findByNameDto(name)));
-//    }
 
 //    @GetMapping("/")
 //    public ResponseEntity<Employer> findByName (@RequestParam(name = "name") String name){
