@@ -31,12 +31,6 @@ public class EmployerService implements IEmployerService {
     @Autowired
     private UserMapper userMapper;
 
-
-    public EmployerDto findByNameDto(String name) {
-//        return modelMapper.map(employerRepository.findByFirstname(name), EmployerDto.class);
-        return null;
-    }
-
     @Override
     public List<EmployerDto> listAll() {
         return employerMapper.toArrayDto(employerRepository.findAll());
@@ -48,21 +42,21 @@ public class EmployerService implements IEmployerService {
     }
 
     @Override
-    public EmployerDto createJoinUser(Employer employer) throws ApiException {
+    public EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException {
 
-        if (isNull(employer.getUser())) {
+        if (isNull(employerDto.getUser())) {
             throw new ApiException("user is null", HttpStatus.NOT_FOUND.value());
         }
-        Employer employerExists = employerRepository.findByDocument(employer.getDocument());
+        Employer employerExists = employerRepository.findByDocument(employerDto.getDocument());
         if (nonNull(employerExists)) {
             throw new ApiException("employee already exists", HttpStatus.BAD_REQUEST.value());
         }
 
-        employer.setUser(
-                userMapper.toDomain(userService.create(employer.getUser()))
-        );
+        employerDto.setUser(userService.create(employerDto.getUser()));
 
-        return employerMapper.toDto(employerRepository.save(employer));
+        Employer employerDomain = employerRepository.save(employerMapper.toDomain(employerDto));
+
+        return employerMapper.toDto(employerDomain);
     }
 
     @Override
