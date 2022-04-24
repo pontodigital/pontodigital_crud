@@ -82,9 +82,15 @@ public class EmployerService implements IEmployerService {
         Employer employer = employerRepository.findById(id)
                 .orElseThrow( () -> new ApiException("employer not found", HttpStatus.NOT_FOUND.value()));
 
-        Employer employerExists = employerRepository.findByDocument(employerUpdate.getDocument());
-        if (nonNull(employerExists)) {
-            throw new ApiException("employee already exists", HttpStatus.BAD_REQUEST.value());
+        Optional<Employer> employerExists = Optional.ofNullable(employerRepository
+                .findByDocument(employerUpdate.getDocument())
+        );
+        if (employerExists.isPresent())
+        {
+            if (!employerExists.get().getDocument().equals(employerUpdate.getDocument()))
+            {
+                throw new ApiException("employee already exists with this document", HttpStatus.BAD_REQUEST.value());
+            }
         }
 
         employer.setFirstName(employerUpdate.getFirstName());

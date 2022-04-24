@@ -2,16 +2,17 @@ package com.digitaldot.employer.service.interfaces;
 
 import com.digitaldot.employer.exceptions.ApiException;
 import com.digitaldot.employer.model.dto.UserDto;
-
-import java.util.List;
+import org.springframework.hateoas.CollectionModel;
 
 public interface IUserService {
 
-    List<UserDto> listAll();
+    CollectionModel<UserDto> listAll() throws ApiException;
+
+    UserDto findByQuery(String id) throws ApiException;
 
     UserDto createUser(UserDto user) throws ApiException;
 
-    void deleteUser(String id);
+    UserDto updateUser(String id, UserDto userUpdateDto) throws ApiException;
 
-    UserDto findByQuery(String id) throws ApiException;
+    void deleteUser(String id);
 }

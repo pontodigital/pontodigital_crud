@@ -7,13 +7,12 @@ import com.digitaldot.employer.model.dto.UserDto;
 import com.digitaldot.employer.repository.user.UserRepository;
 import com.digitaldot.employer.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -23,8 +22,8 @@ public class UserService implements IUserService {
     @Autowired
     private UserMapper userMapper;
 
-    public List<UserDto> listAll() {
-        return userMapper.toArrayDto(userRepository.findAll());
+    public CollectionModel<UserDto> listAll() throws ApiException {
+        return userMapper.toCollectionLinkDto(userMapper.toArrayDto(userRepository.findAll()));
     }
 
     @Override
@@ -33,33 +32,63 @@ public class UserService implements IUserService {
         Optional<User> user = userRepository.findById(query);
         if (user.isPresent())
         {
-            return userMapper.toDto(user.get());
+            return userMapper.toLinkDto(userMapper.toDto(user.get()));
         }
         user = Optional.ofNullable(userRepository.findByEmail(query));
         if (user.isPresent())
         {
-            return userMapper.toDto(user.get());
+            return userMapper.toLinkDto(userMapper.toDto(user.get()));
         }
 
-        return userMapper.toDto(Optional.ofNullable(userRepository.findByUsername(query))
-                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND.value())));
+        return userMapper.toLinkDto(userMapper.toDto(Optional.ofNullable(userRepository.findByUsername(query))
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND.value()))));
     }
 
     @Override
-    public UserDto createUser(UserDto user) throws ApiException {
+    public UserDto createUser(UserDto userDto) throws ApiException {
 
-        User userExists = userRepository.findByEmail(user.getEmail());
+        User userExists = userRepository.findByEmail(userDto.getEmail());
         if (nonNull(userExists)) {
             throw new ApiException("email already exists", HttpStatus.BAD_REQUEST.value());
         }
-        userExists = userRepository.findByUsername(user.getUsername());
+        userExists = userRepository.findByUsername(userDto.getUsername());
         if (nonNull(userExists)) {
             throw new ApiException("username already exists", HttpStatus.BAD_REQUEST.value());
         }
 
-        User userDomain = userRepository.save(userMapper.toDomain(user));
+        User userDomain = userRepository.save(userMapper.toDomain(userDto));
 
-        return userMapper.toDto(userDomain);
+        return userMapper.toLinkDto(userMapper.toDto(userDomain));
+    }
+
+    public UserDto updateUser(String id, UserDto userUpdateDto) throws ApiException {
+        User user = userRepository.findById(id)
+                .orElseThrow( () -> new ApiException("user not found", HttpStatus.NOT_FOUND.value()));
+
+        Optional<User> userExists = Optional.ofNullable(userRepository.findByUsername(userUpdateDto.getUsername()));
+        if (userExists.isPresent())
+        {
+            if (!userExists.get().getUsername().equals(userUpdateDto.getUsername()))
+            {
+                throw new ApiException("user already exists with this username", HttpStatus.BAD_REQUEST.value());
+            }
+        }
+        userExists = Optional.ofNullable(userRepository.findByEmail(userUpdateDto.getEmail()));
+        if (userExists.isPresent())
+        {
+            if (!userExists.get().getEmail().equals(userUpdateDto.getEmail()))
+            {
+                throw new ApiException("user already exists with this email", HttpStatus.BAD_REQUEST.value());
+            }
+        }
+
+        user.setUsername(userUpdateDto.getUsername());
+        user.setEmail(userUpdateDto.getEmail());
+        user.setPassword(userUpdateDto.getPassword());
+        user.setAcceptedTerms(userUpdateDto.isAcceptedTerms());
+        user.setActive(userUpdateDto.isActive());
+
+        return userMapper.toLinkDto(userMapper.toDto(user));
     }
 
     @Override

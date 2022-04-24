@@ -1,6 +1,7 @@
 package com.digitaldot.employer.mapper;
 
 import com.digitaldot.employer.controller.v1.EmployerController;
+import com.digitaldot.employer.controller.v1.UserController;
 import com.digitaldot.employer.exceptions.ApiException;
 import com.digitaldot.employer.model.Employer;
 import com.digitaldot.employer.model.dto.AbstractEmployerDto;
@@ -8,14 +9,11 @@ import com.digitaldot.employer.model.dto.EmployerDto;
 import com.digitaldot.employer.model.dto.EmployerUpdateDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,14 +52,25 @@ public class EmployerMapper {
                 .collect(Collectors.toList());
     }
 
-    public AbstractEmployerDto toLinkDto(Object employerDto) throws ApiException {
-
-        AbstractEmployerDto abstractEmployerDto = mapper.map(employerDto, AbstractEmployerDto.class);
+    public AbstractEmployerDto toLinkDto(AbstractEmployerDto abstractEmployerDto) throws ApiException {
 
         abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).findByQuery(abstractEmployerDto.getId()))
                 .withSelfRel());
+        abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).findByQuery(abstractEmployerDto.getDocument()))
+                .withSelfRel());
 
-        abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).listAll()).withRel("employers"));
+        abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).listAll()).withRel(IanaLinkRelations.COLLECTION));
+
+        if (abstractEmployerDto instanceof EmployerDto) { //link for user
+            EmployerDto employerDto = (EmployerDto) abstractEmployerDto;
+            employerDto.getUser().add(linkTo(methodOn(UserController.class).findByQuery(employerDto.getUser().getId()))
+                    .withSelfRel());
+            employerDto.getUser().add(linkTo(methodOn(UserController.class).findByQuery(employerDto.getUser().getUsername()))
+                    .withSelfRel());
+            employerDto.getUser().add(linkTo(methodOn(UserController.class).findByQuery(employerDto.getUser().getEmail()))
+                    .withSelfRel());
+            employerDto.getUser().add(linkTo(methodOn(UserController.class).listAll()).withRel(IanaLinkRelations.COLLECTION));
+        }
 
         return abstractEmployerDto;
     }
@@ -75,6 +84,6 @@ public class EmployerMapper {
         }
 
         return CollectionModel.of(employerAuxList).add(linkTo(methodOn(EmployerController.class).listAll())
-                .withRel("employers"));
+                .withRel(IanaLinkRelations.COLLECTION));
     }
 }

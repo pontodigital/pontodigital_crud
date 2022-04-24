@@ -1,8 +1,10 @@
 package com.digitaldot.employer.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.hateoas.RepresentationModel;
 
-public class UserDto {
+public class UserDto extends RepresentationModel<UserDto> {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
     private String username;
     private String email;
