@@ -7,13 +7,13 @@ import com.digitaldot.employer.model.dto.EmployerUpdateDto;
 import com.digitaldot.employer.service.interfaces.IEmployerService;
 import com.digitaldot.employer.service.interfaces.IValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 public abstract class AbstractEmployerController {
+
     //TODO -> create filter for find employer
     @Autowired
     private IEmployerService employerService;
@@ -22,7 +22,7 @@ public abstract class AbstractEmployerController {
     private IValidator validator;
 
     @GetMapping("/-")
-    public ResponseEntity<List<EmployerDto>> listAll(){
+    public ResponseEntity<CollectionModel<EmployerDto>> listAll() throws ApiException {
         return ResponseEntity.ok(employerService.listAll());
     }
 
@@ -31,7 +31,7 @@ public abstract class AbstractEmployerController {
         return ResponseEntity.ok(employerService.findById(id)) ;
     }
 
-    @PostMapping("/-")
+    @PostMapping("/-/join")
     public ResponseEntity<EmployerDto> createJoinUser(@RequestBody EmployerDto employer)
             throws ApiException, ValidatorErrorException {
 
@@ -54,6 +54,12 @@ public abstract class AbstractEmployerController {
     }
 
     @DeleteMapping(value = "/-/{id}")
+    public ResponseEntity<Integer> delete(@PathVariable String id) throws ApiException {
+        employerService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(value = "/-/join/{id}")
     public ResponseEntity<Integer> deleteEmployerJoinUser(@PathVariable String id) throws ApiException {
         employerService.deleteEmployerJoinUser(id);
         return ResponseEntity.ok().build();

@@ -1,8 +1,9 @@
 package com.digitaldot.employer.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.hateoas.RepresentationModel;
 
-public abstract class AbstractEmployerDto {
+public abstract class AbstractEmployerDto extends RepresentationModel<AbstractEmployerDto> {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
     private String firstName;
@@ -72,7 +73,7 @@ public abstract class AbstractEmployerDto {
         MALE,
         FEMALE;
 
-        private Gender() {
+        Gender() {
         }
     }
 
@@ -80,7 +81,7 @@ public abstract class AbstractEmployerDto {
         EFFECTIVE,
         INTERN;
 
-        private Type() {
+        Type() {
         }
     }
 }
