@@ -5,22 +5,22 @@ import com.digitaldot.employer.mapper.EmployerMapper;
 import com.digitaldot.employer.mapper.UserMapper;
 import com.digitaldot.employer.model.Employer;
 import com.digitaldot.employer.model.dto.EmployerDto;
+import com.digitaldot.employer.model.dto.EmployerUpdateDto;
 import com.digitaldot.employer.repository.employer.EmployerRepository;
 import com.digitaldot.employer.service.interfaces.IEmployerService;
 import com.digitaldot.employer.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Service
 public class EmployerService implements IEmployerService {
-    //TODO -> add spring hateos
+
     @Autowired
     private EmployerRepository employerRepository;
 
@@ -34,15 +34,19 @@ public class EmployerService implements IEmployerService {
     private UserMapper userMapper;
 
     @Override
-    public List<EmployerDto> listAll() {
-        return employerMapper.toArrayDto(employerRepository.findAll());
+    public CollectionModel<EmployerDto> listAll() throws ApiException {
+
+        return employerMapper.toCollectionLinkDto(
+                employerMapper.toArrayDto(employerRepository.findAll())
+        );
     }
 
     @Override
     public EmployerDto findById(String id) throws ApiException {
-
-        return employerMapper.toDto(employerRepository.findById(id)
-                .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value())));
+        return (EmployerDto) employerMapper.toLinkDto(
+                employerMapper.toDto(employerRepository.findById(id)
+                .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value())))
+        );
     }
 
     @Override
@@ -60,17 +64,40 @@ public class EmployerService implements IEmployerService {
 
         Employer employerDomain = employerRepository.save(employerMapper.toDomain(employerDto));
 
-        return employerMapper.toDto(employerDomain);
+        return (EmployerDto) employerMapper.toLinkDto(employerMapper.toDto(employerDomain));
     }
 
     @Override
-    public Employer update(Employer employer) {
-        return employerRepository.save(employer);
+    public EmployerUpdateDto update(String id, EmployerUpdateDto employerUpdate) throws ApiException {
+
+        Employer employer = employerRepository.findById(id)
+                .orElseThrow( () -> new ApiException("employer not found", HttpStatus.NOT_FOUND.value()));
+
+        Employer employerExists = employerRepository.findByDocument(employerUpdate.getDocument());
+        if (nonNull(employerExists)) {
+            throw new ApiException("employee already exists", HttpStatus.BAD_REQUEST.value());
+        }
+
+        employer.setFirstName(employerUpdate.getFirstName());
+        employer.setLastName(employerUpdate.getLastName());
+        employer.setDocument(employerUpdate.getDocument());
+        employer.setPhone(employerUpdate.getPhone());
+        employer.setType(Employer.Type.valueOf(employerUpdate.getType().name()));
+        employer.setGender(Employer.Gender.valueOf(employerUpdate.getGender().name()));
+
+        return (EmployerUpdateDto) employerMapper.toLinkDto(employerMapper.toUpdateDto(employerRepository.save(employer)));
+    }
+
+    @Override
+    public void delete(String id) throws ApiException {
+        this.findById(id);
+        employerRepository.deleteById(id);
     }
 
     @Transactional
     @Override
     public void deleteEmployerJoinUser(String id) throws ApiException {
+
         EmployerDto employerDto = this.findById(id);
         userService.deleteUser(employerDto.getUser().getId());
         employerRepository.deleteById(id);

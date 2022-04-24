@@ -1,6 +1,8 @@
 package com.digitaldot.employer.service.validator;
 
+import com.digitaldot.employer.model.dto.AbstractEmployerDto;
 import com.digitaldot.employer.model.dto.EmployerDto;
+import com.digitaldot.employer.model.dto.EmployerUpdateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +19,15 @@ public class EmployerValidator extends AbstractValidator{
     public List<String> validate(Object obj) {
 
         List<String> errors = super.validate(obj);
+        AbstractEmployerDto employer;
 
-        if (!(obj instanceof EmployerDto)) {
+        if (! (obj instanceof AbstractEmployerDto) ) {
             return errors;
         }
 
-        EmployerDto employer = (EmployerDto) obj;
+        employer = (AbstractEmployerDto) obj;
+
+
         //firstName
         if (employer.getFirstName().length() < 3 || employer.getFirstName().length() > 10)
         {
