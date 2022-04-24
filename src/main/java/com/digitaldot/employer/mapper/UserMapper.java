@@ -1,17 +1,17 @@
 package com.digitaldot.employer.mapper;
 
-import com.digitaldot.employer.controller.v1.EmployerController;
 import com.digitaldot.employer.controller.v1.UserController;
 import com.digitaldot.employer.exceptions.ApiException;
+import com.digitaldot.employer.exceptions.ValidatorErrorException;
 import com.digitaldot.employer.model.User;
 import com.digitaldot.employer.model.dto.UserDto;
+import com.digitaldot.employer.utils.HideLinksUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +22,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserMapper {
 
     @Autowired
-    ModelMapper mapper;
+    private ModelMapper mapper;
+
+    @Autowired
+    private HideLinksUtils hideLinksUtils;
 
     public UserDto toDto(User user) {
         return mapper.map(user, UserDto.class);
@@ -46,30 +49,40 @@ public class UserMapper {
                 .collect(Collectors.toList());
     }
 
-    public UserDto toLinkDto(UserDto userDto) throws ApiException {
+    public UserDto toLinkDto(UserDto userDto) throws ApiException, ValidatorErrorException {
+        return toLinkDto(userDto, hideLinksUtils);
+    }
 
-        userDto.add(linkTo(methodOn(UserController.class).findByQuery(userDto.getId()))
-                .withSelfRel());
-        userDto.add(linkTo(methodOn(UserController.class).findByQuery(userDto.getUsername()))
-                .withSelfRel());
-        userDto.add(linkTo(methodOn(UserController.class).findByQuery(userDto.getEmail()))
-                .withSelfRel());
+    public UserDto toLinkDto(UserDto userDto, HideLinksUtils hideLinksUtils) throws ApiException, ValidatorErrorException {
 
-        userDto.add(linkTo(methodOn(UserController.class).listAll()).withRel(IanaLinkRelations.COLLECTION));
+        if (!hideLinksUtils.isId())
+        {
+            userDto.add(linkTo(methodOn(UserController.class).findByQuery(userDto.getId())).withSelfRel());
+        }
+        if (!hideLinksUtils.isEdit())
+        {
+            userDto.add(linkTo(methodOn(UserController.class).update(userDto.getId(), userDto)).withRel(IanaLinkRelations.EDIT));
+        }
+        if (!hideLinksUtils.isDelete())
+        {
+            userDto.add(linkTo(methodOn(UserController.class).delete(userDto.getId())).withRel("delete"));
+        }
+        if (!hideLinksUtils.isCollection())
+        {
+            userDto.add(linkTo(methodOn(UserController.class).listAll()).withRel(IanaLinkRelations.COLLECTION));
+        }
 
         return userDto;
     }
 
-    public CollectionModel<UserDto> toCollectionLinkDto(List<UserDto> userDtoList) throws ApiException {
-
-        List<UserDto> userAuxList = new ArrayList<>();
+    public CollectionModel<UserDto> toCollectionLinkDto(List<UserDto> userDtoList)
+            throws ApiException, ValidatorErrorException {
 
         for (UserDto userDto : userDtoList) {
-            userAuxList.add(toLinkDto(userDto));
+            toLinkDto(userDto, hideLinksUtils.hideCollection());
         }
 
-        return CollectionModel.of(userAuxList).add(linkTo(methodOn(UserController.class).listAll())
-                .withRel(IanaLinkRelations.COLLECTION));
+        return CollectionModel.of(userDtoList);
     }
 
 }

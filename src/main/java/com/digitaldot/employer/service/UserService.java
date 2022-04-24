@@ -1,11 +1,13 @@
 package com.digitaldot.employer.service;
 
 import com.digitaldot.employer.exceptions.ApiException;
+import com.digitaldot.employer.exceptions.ValidatorErrorException;
 import com.digitaldot.employer.mapper.UserMapper;
 import com.digitaldot.employer.model.User;
 import com.digitaldot.employer.model.dto.UserDto;
 import com.digitaldot.employer.repository.user.UserRepository;
 import com.digitaldot.employer.service.interfaces.IUserService;
+import com.digitaldot.employer.utils.HideLinksUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
@@ -21,31 +23,33 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private HideLinksUtils hideLinksUtils;
 
-    public CollectionModel<UserDto> listAll() throws ApiException {
+    public CollectionModel<UserDto> listAll() throws ApiException, ValidatorErrorException {
         return userMapper.toCollectionLinkDto(userMapper.toArrayDto(userRepository.findAll()));
     }
 
     @Override
-    public UserDto findByQuery(String query) throws ApiException {
+    public UserDto findByQuery(String query) throws ApiException, ValidatorErrorException {
 
         Optional<User> user = userRepository.findById(query);
         if (user.isPresent())
         {
-            return userMapper.toLinkDto(userMapper.toDto(user.get()));
+            return userMapper.toLinkDto(userMapper.toDto(user.get()), hideLinksUtils.hideId());
         }
         user = Optional.ofNullable(userRepository.findByEmail(query));
         if (user.isPresent())
         {
-            return userMapper.toLinkDto(userMapper.toDto(user.get()));
+            return userMapper.toLinkDto(userMapper.toDto(user.get()), hideLinksUtils.hideId());
         }
 
         return userMapper.toLinkDto(userMapper.toDto(Optional.ofNullable(userRepository.findByUsername(query))
-                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND.value()))));
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND.value()))), hideLinksUtils.hideId());
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) throws ApiException {
+    public UserDto createUser(UserDto userDto) throws ApiException, ValidatorErrorException {
 
         User userExists = userRepository.findByEmail(userDto.getEmail());
         if (nonNull(userExists)) {
@@ -61,7 +65,7 @@ public class UserService implements IUserService {
         return userMapper.toLinkDto(userMapper.toDto(userDomain));
     }
 
-    public UserDto updateUser(String id, UserDto userUpdateDto) throws ApiException {
+    public UserDto updateUser(String id, UserDto userUpdateDto) throws ApiException, ValidatorErrorException {
         User user = userRepository.findById(id)
                 .orElseThrow( () -> new ApiException("user not found", HttpStatus.NOT_FOUND.value()));
 
@@ -88,7 +92,7 @@ public class UserService implements IUserService {
         user.setAcceptedTerms(userUpdateDto.isAcceptedTerms());
         user.setActive(userUpdateDto.isActive());
 
-        return userMapper.toLinkDto(userMapper.toDto(user));
+        return userMapper.toLinkDto(userMapper.toDto(user), hideLinksUtils.hideEdit());
     }
 
     @Override

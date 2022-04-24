@@ -23,16 +23,19 @@ public abstract class AbstractUserController {
     @Autowired
     private IValidator validator;
 
-    @GetMapping("/-")
-    public ResponseEntity<CollectionModel<UserDto>> listAll() throws ApiException {
+    @GetMapping("/find")
+    public ResponseEntity<CollectionModel<UserDto>> listAll() throws ApiException, ValidatorErrorException {
+        //todo -> paginacao
         return ResponseEntity.ok(userService.listAll());
     }
 
-    @GetMapping("/-/query")
-    public ResponseEntity<UserDto> findByQuery(@RequestParam(name = "value") String query) throws ApiException {
+    @GetMapping("/find/query")
+    public ResponseEntity<UserDto> findByQuery(@RequestParam(name = "value") String query)
+            throws ApiException, ValidatorErrorException {
+
         return ResponseEntity.ok(userService.findByQuery(query));
     }
-    @PostMapping("/-")
+    @PostMapping("/create")
     public ResponseEntity<UserDto> create(@RequestBody UserDto userDto) throws ApiException, ValidatorErrorException {
 
         if (validator.hasErros(userDto)) {
@@ -42,7 +45,7 @@ public abstract class AbstractUserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
     }
 
-    @PutMapping("/-/{id}")
+    @PutMapping("/edit/{id}")
     public ResponseEntity<UserDto> update(@PathVariable String id, @RequestBody UserDto userDto)
             throws ApiException, ValidatorErrorException {
 
@@ -52,8 +55,9 @@ public abstract class AbstractUserController {
         return ResponseEntity.ok(userService.updateUser(id, userDto));
     }
 
-    public ResponseEntity<Integer> delete(@PathVariable String id) {
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

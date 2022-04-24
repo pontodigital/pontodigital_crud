@@ -3,17 +3,18 @@ package com.digitaldot.employer.mapper;
 import com.digitaldot.employer.controller.v1.EmployerController;
 import com.digitaldot.employer.controller.v1.UserController;
 import com.digitaldot.employer.exceptions.ApiException;
+import com.digitaldot.employer.exceptions.ValidatorErrorException;
 import com.digitaldot.employer.model.Employer;
 import com.digitaldot.employer.model.dto.AbstractEmployerDto;
 import com.digitaldot.employer.model.dto.EmployerDto;
 import com.digitaldot.employer.model.dto.EmployerUpdateDto;
+import com.digitaldot.employer.utils.HideLinksUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class EmployerMapper {
 
     @Autowired
-    ModelMapper mapper;
+    private ModelMapper mapper;
+
+    @Autowired
+    private HideLinksUtils hideLinksUtils;
 
     public EmployerDto toDto(Employer employer) {
         return mapper.map(employer, EmployerDto.class);
@@ -52,38 +56,57 @@ public class EmployerMapper {
                 .collect(Collectors.toList());
     }
 
-    public AbstractEmployerDto toLinkDto(AbstractEmployerDto abstractEmployerDto) throws ApiException {
+    public AbstractEmployerDto toLinkDto(AbstractEmployerDto abstractEmployerDto, HideLinksUtils hideLinksDto)
+            throws ApiException, ValidatorErrorException {
 
-        abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).findByQuery(abstractEmployerDto.getId()))
-                .withSelfRel());
-        abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).findByQuery(abstractEmployerDto.getDocument()))
-                .withSelfRel());
+        if (!hideLinksDto.isId())
+        {
+            abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).findByQuery(abstractEmployerDto.getId())).withSelfRel());
+        }
+        if (!hideLinksDto.isEdit())
+        {
+            abstractEmployerDto.add(linkTo(methodOn(EmployerController.class)
+                    .update(abstractEmployerDto.getId(), new EmployerUpdateDto())).withRel(IanaLinkRelations.EDIT));
+        }
+        if (!hideLinksDto.isDelete())
+        {
+            abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).delete(abstractEmployerDto.getId())).withRel("delete"));
+        }
+        if (!hideLinksDto.isDeleteJoinUser())
+        {
+            abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).deleteEmployerJoinUser(abstractEmployerDto.getId()))
+                    .withRel("deletejoinuser"));
+        }
+        if (!hideLinksDto.isCollection())
+        {
+            abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).listAll()).withRel(IanaLinkRelations.COLLECTION));
+        }
+        if (abstractEmployerDto instanceof EmployerDto) {
 
-        abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).listAll()).withRel(IanaLinkRelations.COLLECTION));
-
-        if (abstractEmployerDto instanceof EmployerDto) { //link for user
-            EmployerDto employerDto = (EmployerDto) abstractEmployerDto;
-            employerDto.getUser().add(linkTo(methodOn(UserController.class).findByQuery(employerDto.getUser().getId()))
-                    .withSelfRel());
-            employerDto.getUser().add(linkTo(methodOn(UserController.class).findByQuery(employerDto.getUser().getUsername()))
-                    .withSelfRel());
-            employerDto.getUser().add(linkTo(methodOn(UserController.class).findByQuery(employerDto.getUser().getEmail()))
-                    .withSelfRel());
-            employerDto.getUser().add(linkTo(methodOn(UserController.class).listAll()).withRel(IanaLinkRelations.COLLECTION));
+            if (!hideLinksDto.isUser())
+            {
+                EmployerDto employerDto = (EmployerDto) abstractEmployerDto;
+                employerDto.getUser().add(linkTo(methodOn(UserController.class).findByQuery(employerDto.getUser().getId()))
+                        .withSelfRel());
+            }
         }
 
         return abstractEmployerDto;
     }
 
-    public CollectionModel<EmployerDto> toCollectionLinkDto(List<EmployerDto> employerDtoList) throws ApiException {
+    public AbstractEmployerDto toLinkDto(AbstractEmployerDto abstractEmployerDto)
+            throws ApiException, ValidatorErrorException {
 
-        List<EmployerDto> employerAuxList = new ArrayList<>();
+        return toLinkDto(abstractEmployerDto, hideLinksUtils);
+    }
+
+    public CollectionModel<EmployerDto> toCollectionLinkDto(List<EmployerDto> employerDtoList)
+            throws ApiException, ValidatorErrorException {
 
         for (EmployerDto employerDto : employerDtoList) {
-            employerAuxList.add((EmployerDto) toLinkDto(employerDto));
+            toLinkDto(employerDto, hideLinksUtils.hideCollection());
         }
 
-        return CollectionModel.of(employerAuxList).add(linkTo(methodOn(EmployerController.class).listAll())
-                .withRel(IanaLinkRelations.COLLECTION));
+        return CollectionModel.of(employerDtoList);
     }
 }

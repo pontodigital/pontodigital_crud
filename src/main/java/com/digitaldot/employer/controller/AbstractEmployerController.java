@@ -21,17 +21,20 @@ public abstract class AbstractEmployerController {
     @Autowired
     private IValidator validator;
 
-    @GetMapping("/-")
-    public ResponseEntity<CollectionModel<EmployerDto>> listAll() throws ApiException {
+    @GetMapping("/find")
+    public ResponseEntity<CollectionModel<EmployerDto>> listAll() throws ApiException, ValidatorErrorException {
+        //todo -> paginacao
         return ResponseEntity.ok(employerService.listAll());
     }
 
-    @GetMapping("/-/query")
-    public ResponseEntity<EmployerDto> findByQuery(@RequestParam(name = "value") String query) throws ApiException {
+    @GetMapping("/find/query")
+    public ResponseEntity<EmployerDto> findByQuery(@RequestParam(name = "value") String query)
+            throws ApiException, ValidatorErrorException {
+
         return ResponseEntity.ok(employerService.findByQuery(query)) ;
     }
 
-    @PostMapping("/-/join")
+    @PostMapping("/create/join-user")
     public ResponseEntity<EmployerDto> createJoinUser(@RequestBody EmployerDto employer)
             throws ApiException, ValidatorErrorException {
 
@@ -42,7 +45,7 @@ public abstract class AbstractEmployerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(employerService.createJoinUser(employer));
     }
 
-    @PutMapping(path = "/-/{id}")
+    @PutMapping(path = "/update/{id}")
     public ResponseEntity<EmployerUpdateDto> update(@PathVariable String id, @RequestBody EmployerUpdateDto employer)
             throws ApiException, ValidatorErrorException {
 
@@ -53,16 +56,16 @@ public abstract class AbstractEmployerController {
         return ResponseEntity.ok(employerService.update(id, employer));
     }
 
-    @DeleteMapping(value = "/-/{id}")
-    public ResponseEntity<Integer> delete(@PathVariable String id) throws ApiException {
+    @DeleteMapping(value = "/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) throws ApiException, ValidatorErrorException {
         employerService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(value = "/-/join/{id}")
-    public ResponseEntity<Integer> deleteEmployerJoinUser(@PathVariable String id) throws ApiException {
+    @DeleteMapping(value = "/delete/join-user/{id}")
+    public ResponseEntity<Void> deleteEmployerJoinUser(@PathVariable String id) throws ApiException, ValidatorErrorException {
         employerService.deleteEmployerJoinUser(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
 }
