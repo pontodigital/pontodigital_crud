@@ -26,9 +26,9 @@ public abstract class AbstractEmployerController {
         return ResponseEntity.ok(employerService.listAll());
     }
 
-    @GetMapping("/-/{id}")
-    public ResponseEntity<EmployerDto> findById(@PathVariable String id) throws ApiException {
-        return ResponseEntity.ok(employerService.findById(id)) ;
+    @GetMapping("/-/query")
+    public ResponseEntity<EmployerDto> findByQuery(@RequestParam(name = "value") String query) throws ApiException {
+        return ResponseEntity.ok(employerService.findByQuery(query)) ;
     }
 
     @PostMapping("/-/join")
@@ -64,4 +64,5 @@ public abstract class AbstractEmployerController {
         employerService.deleteEmployerJoinUser(id);
         return ResponseEntity.ok().build();
     }
+
 }

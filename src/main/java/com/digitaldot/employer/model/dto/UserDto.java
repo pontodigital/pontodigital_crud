@@ -8,7 +8,9 @@ public class UserDto {
     private String email;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+    @JsonProperty("terms")
     private boolean acceptedTerms;
+    @JsonProperty("active")
     private boolean isActive;
 
     public String getId() {

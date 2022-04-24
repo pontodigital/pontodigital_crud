@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -42,10 +44,17 @@ public class EmployerService implements IEmployerService {
     }
 
     @Override
-    public EmployerDto findById(String id) throws ApiException {
+    public EmployerDto findByQuery(String query) throws ApiException {
+
+        Optional<Employer> employer = employerRepository.findById(query);
+        if (employer.isPresent()) {
+            return (EmployerDto) employerMapper.toLinkDto(
+                    employerMapper.toDto(employer.get())
+            );
+        }
         return (EmployerDto) employerMapper.toLinkDto(
-                employerMapper.toDto(employerRepository.findById(id)
-                .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value())))
+                employerMapper.toDto(Optional.ofNullable(employerRepository.findByDocument(query))
+                        .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value())))
         );
     }
 
@@ -90,7 +99,7 @@ public class EmployerService implements IEmployerService {
 
     @Override
     public void delete(String id) throws ApiException {
-        this.findById(id);
+        this.findByQuery(id);
         employerRepository.deleteById(id);
     }
 
@@ -98,7 +107,7 @@ public class EmployerService implements IEmployerService {
     @Override
     public void deleteEmployerJoinUser(String id) throws ApiException {
 
-        EmployerDto employerDto = this.findById(id);
+        EmployerDto employerDto = this.findByQuery(id);
         userService.deleteUser(employerDto.getUser().getId());
         employerRepository.deleteById(id);
     }

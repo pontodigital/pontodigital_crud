@@ -58,7 +58,7 @@ public class EmployerMapper {
 
         AbstractEmployerDto abstractEmployerDto = mapper.map(employerDto, AbstractEmployerDto.class);
 
-        abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).findById(abstractEmployerDto.getId()))
+        abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).findByQuery(abstractEmployerDto.getId()))
                 .withSelfRel());
 
         abstractEmployerDto.add(linkTo(methodOn(EmployerController.class).listAll()).withRel("employers"));

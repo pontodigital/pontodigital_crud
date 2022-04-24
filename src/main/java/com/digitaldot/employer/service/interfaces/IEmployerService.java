@@ -9,7 +9,7 @@ public interface IEmployerService {
 
     CollectionModel<EmployerDto> listAll() throws ApiException;
 
-    EmployerDto findById(String id) throws ApiException;
+    EmployerDto findByQuery(String query) throws ApiException;
 
     EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException;
 
