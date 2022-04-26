@@ -36,11 +36,11 @@
 			<version>8.12.46</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.github.pontodigital</groupId>
-			<artifactId>Lib_Class_Digital</artifactId>
-			<version>1.2.3</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.github.pontodigital</groupId>-->
+<!--			<artifactId>Lib_Class_Digital</artifactId>-->
+<!--			<version>1.2.3</version>-->
+<!--		</dependency>-->
 
 <!--		<dependency>-->
 <!--			<groupId>com.github.leosant</groupId>-->

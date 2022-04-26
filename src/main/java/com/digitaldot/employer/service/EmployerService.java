@@ -1,6 +1,7 @@
 package com.digitaldot.employer.service;
 
 import com.digitaldot.employer.exceptions.ApiException;
+import com.digitaldot.employer.exceptions.ValidatorErrorException;
 import com.digitaldot.employer.mapper.EmployerMapper;
 import com.digitaldot.employer.mapper.UserMapper;
 import com.digitaldot.employer.model.Employer;
@@ -9,11 +10,14 @@ import com.digitaldot.employer.model.dto.EmployerUpdateDto;
 import com.digitaldot.employer.repository.employer.EmployerRepository;
 import com.digitaldot.employer.service.interfaces.IEmployerService;
 import com.digitaldot.employer.service.interfaces.IUserService;
+import com.digitaldot.employer.utils.HideLinksUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -33,8 +37,11 @@ public class EmployerService implements IEmployerService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private HideLinksUtils hideLinksUtils;
+
     @Override
-    public CollectionModel<EmployerDto> listAll() throws ApiException {
+    public CollectionModel<EmployerDto> listAll() throws ApiException, ValidatorErrorException {
 
         return employerMapper.toCollectionLinkDto(
                 employerMapper.toArrayDto(employerRepository.findAll())
@@ -42,15 +49,25 @@ public class EmployerService implements IEmployerService {
     }
 
     @Override
-    public EmployerDto findById(String id) throws ApiException {
+    public EmployerDto findByQuery(String query) throws ApiException, ValidatorErrorException {
+
+        Optional<Employer> employer = employerRepository.findById(query);
+        if (employer.isPresent()) {
+            return (EmployerDto) employerMapper.toLinkDto(
+                    employerMapper.toDto(employer.get()), hideLinksUtils.hideId()
+            );
+        }
+
         return (EmployerDto) employerMapper.toLinkDto(
-                employerMapper.toDto(employerRepository.findById(id)
-                .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value())))
+                employerMapper.toDto(Optional.ofNullable(employerRepository.findByDocument(query))
+                        .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value()))),
+                hideLinksUtils.hideId()
         );
+
     }
 
     @Override
-    public EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException {
+    public EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException, ValidatorErrorException {
 
         if (isNull(employerDto.getUser())) {
             throw new ApiException("user is null", HttpStatus.NOT_FOUND.value());
@@ -68,14 +85,20 @@ public class EmployerService implements IEmployerService {
     }
 
     @Override
-    public EmployerUpdateDto update(String id, EmployerUpdateDto employerUpdate) throws ApiException {
+    public EmployerUpdateDto update(String id, EmployerUpdateDto employerUpdate) throws ApiException, ValidatorErrorException {
 
         Employer employer = employerRepository.findById(id)
                 .orElseThrow( () -> new ApiException("employer not found", HttpStatus.NOT_FOUND.value()));
 
-        Employer employerExists = employerRepository.findByDocument(employerUpdate.getDocument());
-        if (nonNull(employerExists)) {
-            throw new ApiException("employee already exists", HttpStatus.BAD_REQUEST.value());
+        Optional<Employer> employerExists = Optional.ofNullable(employerRepository
+                .findByDocument(employerUpdate.getDocument())
+        );
+        if (employerExists.isPresent())
+        {
+            if (!employerExists.get().getDocument().equals(employerUpdate.getDocument()))
+            {
+                throw new ApiException("employee already exists with this document", HttpStatus.BAD_REQUEST.value());
+            }
         }
 
         employer.setFirstName(employerUpdate.getFirstName());
@@ -85,20 +108,21 @@ public class EmployerService implements IEmployerService {
         employer.setType(Employer.Type.valueOf(employerUpdate.getType().name()));
         employer.setGender(Employer.Gender.valueOf(employerUpdate.getGender().name()));
 
-        return (EmployerUpdateDto) employerMapper.toLinkDto(employerMapper.toUpdateDto(employerRepository.save(employer)));
+        return (EmployerUpdateDto) employerMapper.toLinkDto(employerMapper.toUpdateDto(employerRepository.save(employer)),
+                hideLinksUtils.hideEdit());
     }
 
     @Override
-    public void delete(String id) throws ApiException {
-        this.findById(id);
+    public void delete(String id) throws ApiException, ValidatorErrorException {
+        this.findByQuery(id);
         employerRepository.deleteById(id);
     }
 
     @Transactional
     @Override
-    public void deleteEmployerJoinUser(String id) throws ApiException {
+    public void deleteEmployerJoinUser(String id) throws ApiException, ValidatorErrorException {
 
-        EmployerDto employerDto = this.findById(id);
+        EmployerDto employerDto = this.findByQuery(id);
         userService.deleteUser(employerDto.getUser().getId());
         employerRepository.deleteById(id);
     }

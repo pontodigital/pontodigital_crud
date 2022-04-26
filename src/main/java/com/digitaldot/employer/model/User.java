@@ -14,9 +14,7 @@ public class User {
     @ValidField(message = "Digite um email válido", type = ValidField.TypeValid.EMAIL)
     private String email;
     private String password;
-    @JsonProperty("terms")
     private boolean acceptedTerms;
-    @JsonProperty("active")
     private boolean isActive;
 
     public String getId() {

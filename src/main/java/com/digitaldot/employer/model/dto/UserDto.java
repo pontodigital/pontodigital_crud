@@ -1,14 +1,20 @@
 package com.digitaldot.employer.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.hateoas.RepresentationModel;
 
-public class UserDto {
+import java.util.List;
+
+public class UserDto extends RepresentationModel<UserDto> {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
     private String username;
     private String email;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+    @JsonProperty("terms")
     private boolean acceptedTerms;
+    @JsonProperty("active")
     private boolean isActive;
 
     public String getId() {
@@ -58,4 +64,5 @@ public class UserDto {
     public void setActive(boolean active) {
         isActive = active;
     }
+
 }
