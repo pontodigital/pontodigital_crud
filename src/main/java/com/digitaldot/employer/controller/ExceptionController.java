@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionController {
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<EmployerErrorDto> handlerApiException(IllegalArgumentException e) {
+        return new ResponseEntity<>(new EmployerErrorDto(e.getMessage()), HttpStatus.BAD_GATEWAY);
+    }
+
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<EmployerErrorDto> handlerApiException(ApiException e) {
         return new ResponseEntity<>(new EmployerErrorDto(e.getMessage()), HttpStatus.valueOf(e.getStatus()));

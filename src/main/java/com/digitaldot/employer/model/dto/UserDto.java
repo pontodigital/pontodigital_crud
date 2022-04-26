@@ -2,9 +2,9 @@ package com.digitaldot.employer.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
-import java.util.List;
-
+@Relation(collectionRelation = "users")
 public class UserDto extends RepresentationModel<UserDto> {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;

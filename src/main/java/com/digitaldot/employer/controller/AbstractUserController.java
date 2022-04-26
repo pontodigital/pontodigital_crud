@@ -3,17 +3,20 @@ package com.digitaldot.employer.controller;
 
 import com.digitaldot.employer.exceptions.ApiException;
 import com.digitaldot.employer.exceptions.ValidatorErrorException;
+import com.digitaldot.employer.model.User;
+import com.digitaldot.employer.model.dto.PageUserDto;
 import com.digitaldot.employer.model.dto.UserDto;
-import com.digitaldot.employer.service.UserService;
 import com.digitaldot.employer.service.interfaces.IUserService;
 import com.digitaldot.employer.service.interfaces.IValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 public abstract class AbstractUserController {
 
@@ -24,9 +27,15 @@ public abstract class AbstractUserController {
     private IValidator validator;
 
     @GetMapping("/find")
-    public ResponseEntity<CollectionModel<UserDto>> listAll() throws ApiException, ValidatorErrorException {
-        //todo -> paginacao
-        return ResponseEntity.ok(userService.listAll());
+    public ResponseEntity<CollectionModel<UserDto>> listAll(@PageableDefault(size = 5) Pageable page) throws ApiException, ValidatorErrorException {
+
+        PageUserDto pageUserDto = userService.listAll(page);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Itens", String.valueOf(pageUserDto.getItens()));
+        headers.add("Total-Itens", String.valueOf(pageUserDto.getTotalItens()));
+        headers.add("Total-Pages", String.valueOf(pageUserDto.getTotalPages()));
+
+        return ResponseEntity.ok().headers(headers).body(pageUserDto.getUsers());
     }
 
     @GetMapping("/find/query")

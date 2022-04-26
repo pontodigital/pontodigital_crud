@@ -8,6 +8,7 @@ import com.digitaldot.employer.model.dto.UserDto;
 import com.digitaldot.employer.utils.HideLinksUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.stereotype.Component;
@@ -69,7 +70,7 @@ public class UserMapper {
         }
         if (!hideLinksUtils.isCollection())
         {
-            userDto.add(linkTo(methodOn(UserController.class).listAll()).withRel(IanaLinkRelations.COLLECTION));
+            userDto.add(linkTo(methodOn(UserController.class).listAll(Pageable.unpaged())).withRel(IanaLinkRelations.COLLECTION));
         }
 
         return userDto;
