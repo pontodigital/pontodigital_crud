@@ -10,13 +10,10 @@ import com.digitaldot.employer.repository.user.UserRepository;
 import com.digitaldot.employer.service.interfaces.IUserService;
 import com.digitaldot.employer.utils.HideLinksUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.nonNull;
@@ -30,27 +27,16 @@ public class UserService implements IUserService {
     @Autowired
     private HideLinksUtils hideLinksUtils;
 
-    //todo new listAll filter and pagination ->refactor
-    //por default o valor da page vem 0
-    //por default o valor do size vem 5
     public PageUserDto listAll(Pageable pageable) throws ApiException, ValidatorErrorException {
 
-//        if (pageable.getPageNumber() == 1)
-//        {
-//            pageable.withPage(0);
-//        }
-//        else
-//        {
-//            pageable.withPage(pageable.getPageNumber() - 1);
-//        }
+        pageable.withPage(paginationNumber(pageable));
+        PageUserDto pageUserDto = userMapper.toPage(userRepository.findAll(pageable));
 
-        Page<User> userPage = userRepository.findAll(pageable);
-        CollectionModel<UserDto> userDtos = userMapper.toCollectionLinkDto(userMapper.toArrayDto(userPage.getContent()));
-        PageUserDto pageUserDto = new PageUserDto();
-        pageUserDto.setUsers(userDtos);
-        pageUserDto.setItens(userPage.getSize());
-        pageUserDto.setTotalItens(userPage.getTotalElements());
-        pageUserDto.setTotalPages(userPage.getTotalPages());
+        if (pageUserDto.getItens() == 0)
+        {
+            throw new ApiException("Users not found", HttpStatus.NO_CONTENT.value());
+        }
+
         return pageUserDto;
 
     }
@@ -123,5 +109,17 @@ public class UserService implements IUserService {
     @Override
     public void deleteUser(String id) {
         userRepository.deleteById(id);
+    }
+
+    private int paginationNumber(Pageable pageable) {
+
+        if (pageable.getPageNumber() == 0 || pageable.getPageNumber() == 1 )
+        {
+            return 0;
+        }
+        else
+        {
+            return pageable.getPageNumber() - 1;
+        }
     }
 }

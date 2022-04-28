@@ -4,10 +4,12 @@ import com.digitaldot.employer.controller.v1.UserController;
 import com.digitaldot.employer.exceptions.ApiException;
 import com.digitaldot.employer.exceptions.ValidatorErrorException;
 import com.digitaldot.employer.model.User;
+import com.digitaldot.employer.model.dto.PageUserDto;
 import com.digitaldot.employer.model.dto.UserDto;
 import com.digitaldot.employer.utils.HideLinksUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -86,4 +88,15 @@ public class UserMapper {
         return CollectionModel.of(userDtoList);
     }
 
+    public PageUserDto toPage(Page<User> userPage) throws ValidatorErrorException, ApiException {
+
+        PageUserDto pageUserDto = new PageUserDto();
+
+        CollectionModel<UserDto> userDtos = toCollectionLinkDto(toArrayDto(userPage.getContent()));
+        pageUserDto.setUsers(userDtos);
+        pageUserDto.setItens(userPage.getSize());
+        pageUserDto.setTotalItens(userPage.getTotalElements());
+        pageUserDto.setTotalPages(userPage.getTotalPages());
+        return pageUserDto;
+    }
 }
