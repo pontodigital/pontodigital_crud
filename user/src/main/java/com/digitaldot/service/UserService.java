@@ -31,50 +31,55 @@ public class UserService implements IUserService {
     private HideLinksUtils hideLinksUtils;
 
     public PageUserDto listAll(Pageable pageable) throws ApiException, ValidatorErrorException {
-//
-//        pageable.withPage(paginationNumber(pageable));
-////        PageUserDto pageUserDto = userMapper.toPage(userRepository.findAll(pageable));
-//
-//        if (pageUserDto.getTotalItens() == 0)
-//        {
-//            throw new ApiException("Users not found", HttpStatus.NO_CONTENT.value());
-//        }
-//
-//        return pageUserDto;
-        return null;
+
+        pageable.withPage(paginationNumber(pageable));
+        PageUserDto pageUserDto = userMapper.toPage(repository.findAll(pageable));
+
+        if (pageUserDto.getTotalItens() == 0)
+        {
+            throw new ApiException("Users not found", HttpStatus.NO_CONTENT.value());
+        }
+
+        return pageUserDto;
     }
 
     @Override
     public UserDto findByQuery(String query) throws ApiException, ValidatorErrorException {
 
-//        Optional<User> user = userRepository.findById(query);
-//        if (user.isPresent())
-//        {
-//            return userMapper.toLinkDto(userMapper.toDto(user.get()), hideLinksUtils.hideId());
-//        }
-//        user = Optional.ofNullable(userRepository.findByEmail(query));
-//        if (user.isPresent())
-//        {
-//            return userMapper.toLinkDto(userMapper.toDto(user.get()), hideLinksUtils.hideId());
-//        }
-//
-//        return userMapper.toLinkDto(userMapper.toDto(Optional.ofNullable(userRepository.findByUsername(query))
-//                .orElseThrow(() -> new ApiException("No registered user", HttpStatus.NO_CONTENT.value()))), hideLinksUtils.hideId());
+        Optional<User> user;
 
-        return null;
+        if (query.matches("[0-9]+")) {
+            user = repository.findById(Long.valueOf(query));
+            if (user.isPresent())
+            {
+                return userMapper.toLinkDto(userMapper.toDto(user.get()), hideLinksUtils.hideId());
+            }
+        }
+
+        user = Optional.ofNullable(repository.findByEmail(query));
+        if (user.isPresent())
+        {
+            return userMapper.toLinkDto(userMapper.toDto(user.get()), hideLinksUtils.hideId());
+        }
+
+        return userMapper.toLinkDto(userMapper.toDto(Optional.ofNullable(repository.findByUsername(query))
+                .orElseThrow(() -> new ApiException("No registered user", HttpStatus.NO_CONTENT.value()))), hideLinksUtils.hideId());
     }
+
+    //TODO: create service for join with employer to user -> remember transctional
 
     @Override
     public UserDto createUser(UserDto userDto) throws ApiException, ValidatorErrorException {
 
-//        User userExists = userRepository.findByEmail(userDto.getEmail());
-//        if (nonNull(userExists)) {
-//            throw new ApiException("email already exists", HttpStatus.BAD_REQUEST.value());
-//        }
-//        userExists = userRepository.findByUsername(userDto.getUsername());
-//        if (nonNull(userExists)) {
-//            throw new ApiException("username already exists", HttpStatus.BAD_REQUEST.value());
-//        }
+        //TODO: criar estrutura para receber todos os possiveis erros e devolve-los para o cliente
+        User userExists = repository.findByEmail(userDto.getEmail());
+        if (nonNull(userExists)) {
+            throw new ApiException("email already exists", HttpStatus.BAD_REQUEST.value());
+        }
+        userExists = repository.findByUsername(userDto.getUsername());
+        if (nonNull(userExists)) {
+            throw new ApiException("username already exists", HttpStatus.BAD_REQUEST.value());
+        }
 
         User user = userMapper.toDomain(userDto);
         User userDomain = repository.save(user);
@@ -82,41 +87,45 @@ public class UserService implements IUserService {
         return userMapper.toLinkDto(userMapper.toDto(userDomain));
     }
 
-    public UserDto updateUser(String id, UserDto userUpdateDto) throws ApiException, ValidatorErrorException {
-//        User user = userRepository.findById(id)
-//                .orElseThrow( () -> new ApiException("user not found", HttpStatus.NOT_FOUND.value()));
-//
-//        Optional<User> userExists = Optional.ofNullable(userRepository.findByUsername(userUpdateDto.getUsername()));
-//        if (userExists.isPresent())
-//        {
-//            if (!userExists.get().getUsername().equals(userUpdateDto.getUsername()))
-//            {
-//                throw new ApiException("user already exists with this username", HttpStatus.BAD_REQUEST.value());
-//            }
-//        }
-//        userExists = Optional.ofNullable(userRepository.findByEmail(userUpdateDto.getEmail()));
-//        if (userExists.isPresent())
-//        {
-//            if (!userExists.get().getEmail().equals(userUpdateDto.getEmail()))
-//            {
-//                throw new ApiException("user already exists with this email", HttpStatus.BAD_REQUEST.value());
-//            }
-//        }
-//
-//        user.setUsername(userUpdateDto.getUsername());
-//        user.setEmail(userUpdateDto.getEmail());
-//        user.setPassword(userUpdateDto.getPassword());
-//        user.setAcceptedTerms(userUpdateDto.isAcceptedTerms());
-//        user.setActive(userUpdateDto.isActive());
-//
-//        return userMapper.toLinkDto(userMapper.toDto(user), hideLinksUtils.hideEdit());
+    //TODO: refactor for criteria and add function generic
+    public UserDto updateUser(Long id, UserDto userUpdateDto) throws ApiException, ValidatorErrorException {
 
-        return null;
+        User user = repository.findById(id)
+                .orElseThrow( () -> new ApiException("user not found", HttpStatus.NOT_FOUND.value()));
+
+        Optional<User> userExists = Optional.ofNullable(repository.findByUsername(userUpdateDto.getUsername()));
+        if (userExists.isPresent())
+        {
+            if (!userExists.get().getUsername().equals(userUpdateDto.getUsername()))
+            {
+                throw new ApiException("user already exists with this username", HttpStatus.BAD_REQUEST.value());
+            }
+        }
+        userExists = Optional.ofNullable(repository.findByEmail(userUpdateDto.getEmail()));
+        if (userExists.isPresent())
+        {
+            if (!userExists.get().getEmail().equals(userUpdateDto.getEmail()))
+            {
+                throw new ApiException("user already exists with this email", HttpStatus.BAD_REQUEST.value());
+            }
+        }
+
+        user.setUsername(userUpdateDto.getUsername());
+        user.setEmail(userUpdateDto.getEmail());
+        user.setPassword(userUpdateDto.getPassword());
+        user.setAcceptedTerms(userUpdateDto.isAcceptedTerms());
+        user.setActive(userUpdateDto.isActive());
+
+        //Update and persist in real-time
+        user = repository.save(user);
+
+        return userMapper.toLinkDto(userMapper.toDto(user), hideLinksUtils.hideEdit());
     }
 
+    //TODO: Entender se deletar logicamente sera mais viavel
     @Override
-    public void deleteUser(String id) {
-//        userRepository.deleteById(id);
+    public void deleteUser(Long id) {
+        repository.deleteById(id);
     }
 
     private int paginationNumber(Pageable pageable) {

@@ -15,6 +15,9 @@ public class User {
     private String password;
     private boolean acceptedTerms;
     private boolean isActive;
+    @OneToOne
+    @JoinColumn(name = "employer_id")
+    private Employer employer;
     public long getId() {
         return id;
     }
@@ -61,5 +64,13 @@ public class User {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public Employer getEmployer() {
+        return employer;
+    }
+
+    public void setEmployer(Employer employer) {
+        this.employer = employer;
     }
 }

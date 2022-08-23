@@ -58,22 +58,22 @@ public class UserMapper {
 
     public UserDto toLinkDto(UserDto userDto, HideLinksUtils hideLinksUtils) throws ApiException, ValidatorErrorException {
 
-//        if (!hideLinksUtils.isId())
-//        {
-//            userDto.add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).findByQuery(userDto.getId())).withSelfRel());
-//        }
-//        if (!hideLinksUtils.isEdit())
-//        {
-//            userDto.add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).update(userDto.getId(), userDto)).withRel(IanaLinkRelations.EDIT));
-//        }
-//        if (!hideLinksUtils.isDelete())
-//        {
-//            userDto.add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).delete(userDto.getId())).withRel("delete"));
-//        }
-//        if (!hideLinksUtils.isCollection())
-//        {
-//            userDto.add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).listAll(Pageable.unpaged())).withRel(IanaLinkRelations.COLLECTION));
-//        }
+        if (!hideLinksUtils.isId())
+        {
+            userDto.add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).findByQuery(String.valueOf(userDto.getId()))).withSelfRel());
+        }
+        if (!hideLinksUtils.isEdit())
+        {
+            userDto.add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).update(userDto.getId(), userDto)).withRel(IanaLinkRelations.EDIT));
+        }
+        if (!hideLinksUtils.isDelete())
+        {
+            userDto.add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).delete(userDto.getId())).withRel("delete"));
+        }
+        if (!hideLinksUtils.isCollection())
+        {
+            userDto.add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).listAll(Pageable.unpaged())).withRel(IanaLinkRelations.COLLECTION));
+        }
 
         return userDto;
     }

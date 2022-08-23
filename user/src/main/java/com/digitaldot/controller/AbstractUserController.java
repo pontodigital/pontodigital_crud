@@ -26,7 +26,7 @@ public abstract class AbstractUserController {
     @Autowired
     private HeadersUtil headersUtil;
 
-    @GetMapping("/find")
+    @GetMapping("/findAll")
     public ResponseEntity<CollectionModel<UserDto>> listAll(@PageableDefault(size = 5) Pageable page) throws ApiException, ValidatorErrorException {
 
             PageUserDto pageUserDto = userService.listAll(page);
@@ -54,7 +54,7 @@ public abstract class AbstractUserController {
     }
 
     @PutMapping("/edit/{id}")
-    public ResponseEntity<UserDto> update(@PathVariable String id, @RequestBody UserDto userDto)
+    public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody UserDto userDto)
             throws ApiException, ValidatorErrorException {
 
 //        if (validator.hasErros(userDto)) {
@@ -64,7 +64,7 @@ public abstract class AbstractUserController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

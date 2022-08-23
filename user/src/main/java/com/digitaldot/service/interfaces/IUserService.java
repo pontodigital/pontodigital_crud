@@ -13,7 +13,7 @@ public interface IUserService {
 
     UserDto createUser(UserDto user) throws ApiException, ValidatorErrorException;
 
-    UserDto updateUser(String id, UserDto userUpdateDto) throws ApiException, ValidatorErrorException;
+    UserDto updateUser(Long id, UserDto userUpdateDto) throws ApiException, ValidatorErrorException;
 
-    void deleteUser(String id);
+    void deleteUser(Long id) throws ApiException;
 }
