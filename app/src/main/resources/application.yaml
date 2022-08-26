@@ -21,10 +21,6 @@ spring:
   config:
     activate:
       on-profile: dev
-  datasource:
-    url: jdbc:sqlserver://localhost;databaseName=empdb;encrypt=true;trustServerCertificate=true
-    username: sa
-    password: Leo123456*
   jpa:
     hibernate:
       ddl-auto: update
@@ -33,7 +29,3 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.SQLServer2012Dialect
-
-server:
-  servlet:
-    context-path: /

@@ -10,7 +10,8 @@
 		<module>security</module>
 		<module>user</module>
 		<module>registry</module>
-		<module>migrations</module>
+        <module>utils</module>
+		<module>validator</module>
 	</modules>
 
 	<parent>
