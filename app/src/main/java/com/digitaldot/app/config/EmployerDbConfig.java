@@ -1,5 +1,7 @@
 package com.digitaldot.app.config;
 
+import com.digitaldot.utils.enviroment.EnvFile;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -11,12 +13,14 @@ import javax.sql.DataSource;
 @Configuration
 public class EmployerDbConfig {
 
+    @Autowired
+    private EnvFile env;
     @Bean
     public DataSource employerDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUrl("jdbc:sqlserver://localhost;databaseName=empdb;encrypt=true;trustServerCertificate=true");
-        dataSource.setUsername("sa");
-        dataSource.setPassword("Leo123456*");
+        dataSource.setUsername(env.get("DB.USERNAME"));
+        dataSource.setPassword(env.get("DB.PASSWORD"));
         return dataSource;
     }
 

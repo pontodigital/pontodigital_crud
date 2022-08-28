@@ -2,7 +2,6 @@ package com.digitaldot.user.service.validator;
 
 import com.digitaldot.user.model.dto.UserDto;
 import com.digitaldot.validator.AbstractValidator;
-import com.digitaldot.validator.IValidator;
 import com.digitaldot.validator.ValidatorFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 @Service
-public class UserValidator extends AbstractValidator implements IValidator {
+public class UserValidator extends AbstractValidator {
 
     @Autowired
     private ValidatorFields validatorServices;
