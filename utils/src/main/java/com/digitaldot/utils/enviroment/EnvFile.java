@@ -39,9 +39,7 @@ public class EnvFile {
 
         Map<String, String> maps = new HashMap<>();
 
-        for (Object key : keyMap.keySet()) {
-            maps.put(key.toString(), keyMap.get(key).toString());
-        }
+       keyMap.keySet().forEach( key -> maps.put(key.toString(), keyMap.get(key).toString()));
 
         return maps;
     }

@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ComponentScan(basePackages = {"com.digitaldot.*"})
 @EntityScan(basePackages = {"com.digitaldot.*"})
 @EnableJpaRepositories(basePackages = {"com.digitaldot.*"})
-
 public class Application {
 
 	public static void main(String[] args) {

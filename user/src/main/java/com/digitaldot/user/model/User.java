@@ -2,6 +2,8 @@ package com.digitaldot.user.model;
 
 import com.digitaldot.employer.model.Employer;
 import com.digitaldot.validator.ValidField;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.springframework.data.annotation.TypeAlias;
 
 import javax.persistence.*;
 

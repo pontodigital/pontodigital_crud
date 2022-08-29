@@ -12,7 +12,9 @@ public class Employer {
     private String lastName;
     private String document;
     private String phone;
+    @Enumerated(EnumType.STRING)
     private Type type;
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
     //TODO: create fields address with country

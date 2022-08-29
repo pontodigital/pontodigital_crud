@@ -6,7 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EmployerRepository extends JpaRepository<Employer, Long> {
-
-//    @Query("{ 'document' : ?0 }")
-//    Employer findByDocument(String document);
+    Employer findByDocument(String document);
 }

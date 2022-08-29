@@ -8,16 +8,14 @@ import org.springframework.hateoas.CollectionModel;
 
 public interface IEmployerService {
 
-    CollectionModel<EmployerDto> listAll() throws ApiException, ValidatorErrorException;
+    CollectionModel<EmployerDto> listAllEmployers() throws ApiException, ValidatorErrorException;
 
-    EmployerDto findByQuery(String query) throws ApiException, ValidatorErrorException;
+    EmployerDto findByQueryEmployer(String query) throws ApiException, ValidatorErrorException;
 
-    EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException, ValidatorErrorException;
+    EmployerDto createEmployer(EmployerDto employerDto) throws ApiException, ValidatorErrorException;
 
-    EmployerUpdateDto update (String id, EmployerUpdateDto employer) throws ApiException, ValidatorErrorException;
+    EmployerUpdateDto updateEmployer(String id, EmployerUpdateDto employer) throws ApiException, ValidatorErrorException;
 
-    void delete(String id) throws ApiException, ValidatorErrorException;
-
-    void deleteEmployerJoinUser(String id) throws ApiException, ValidatorErrorException;
+    void deleteEmployer(String id) throws ApiException, ValidatorErrorException;
 
 }

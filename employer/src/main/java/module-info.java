@@ -1,6 +1,7 @@
 module employer {
 
     exports com.digitaldot.employer.model;
+    exports com.digitaldot.employer.facade;
     requires validator;
     requires java.persistence;
     requires com.fasterxml.jackson.annotation;

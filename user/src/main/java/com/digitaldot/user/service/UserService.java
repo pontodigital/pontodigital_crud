@@ -1,5 +1,7 @@
 package com.digitaldot.user.service;
 
+import com.digitaldot.employer.facade.EmployerFacade;
+import com.digitaldot.employer.model.Employer;
 import com.digitaldot.user.model.User;
 import com.digitaldot.user.repository.UserRepository;
 import com.digitaldot.user.service.interfaces.IUserService;
@@ -16,15 +18,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static java.lang.String.valueOf;
 import static java.util.Objects.nonNull;
 
 @Service
 public class UserService implements IUserService {
 
     @Autowired
-    UserRepository repository;
+    private UserRepository repository;
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private EmployerFacade employerFacade;
     @Autowired
     private HideLinksUtils hideLinksUtils;
 
@@ -64,7 +70,6 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ApiException("User no registered", HttpStatus.BAD_REQUEST.value()))), hideLinksUtils.hideId());
     }
 
-    //TODO: create service for join with employer to user -> remember transctional
     @Override
     public UserDto createUser(UserDto userDto) throws ApiException, ValidatorErrorException {
 
@@ -78,8 +83,9 @@ public class UserService implements IUserService {
             throw new ApiException("username already exists", HttpStatus.BAD_REQUEST.value());
         }
 
-        User user = userMapper.toDomain(userDto);
-        User userDomain = repository.save(user);
+        User userDomain = repository.save(
+                userMapper.toDomain(userDto)
+        );
 
         return userMapper.toLinkDto(userMapper.toDto(userDomain));
     }
@@ -107,13 +113,15 @@ public class UserService implements IUserService {
             }
         }
 
+        Employer employer = employerFacade.getEmployer(valueOf(userUpdateDto.getEmployerId()));
+
         user.setUsername(userUpdateDto.getUsername());
         user.setEmail(userUpdateDto.getEmail());
         user.setPassword(userUpdateDto.getPassword());
         user.setAcceptedTerms(userUpdateDto.isAcceptedTerms());
         user.setActive(userUpdateDto.isActive());
+        user.setEmployer(employer);
 
-        //Update and persist in real-time
         user = repository.save(user);
 
         return userMapper.toLinkDto(userMapper.toDto(user), hideLinksUtils.hideEdit());

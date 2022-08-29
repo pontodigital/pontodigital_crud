@@ -13,8 +13,12 @@ import javax.sql.DataSource;
 @Configuration
 public class EmployerDbConfig {
 
-    @Autowired
-    private EnvFile env;
+    private final EnvFile env;
+
+    public EmployerDbConfig(EnvFile env) {
+        this.env = env;
+    }
+
     @Bean
     public DataSource employerDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();

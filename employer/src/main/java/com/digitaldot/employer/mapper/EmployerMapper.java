@@ -61,38 +61,23 @@ public class EmployerMapper {
         if (!hideLinksDto.isId())
         {
             abstractEmployerDto.add(WebMvcLinkBuilder.linkTo(methodOn(EmployerController.class)
-                    .findByQuery(abstractEmployerDto.getId())).withSelfRel());
+                    .findByQueryEmployer(abstractEmployerDto.getId())).withSelfRel());
         }
         if (!hideLinksDto.isEdit())
         {
             abstractEmployerDto.add(WebMvcLinkBuilder.linkTo(methodOn(EmployerController.class)
-                    .update(abstractEmployerDto.getId(), new EmployerUpdateDto())).withRel(IanaLinkRelations.EDIT));
+                    .updateEmployer(abstractEmployerDto.getId(), new EmployerUpdateDto())).withRel(IanaLinkRelations.EDIT));
         }
         if (!hideLinksDto.isDelete())
         {
             abstractEmployerDto.add(WebMvcLinkBuilder.linkTo(methodOn(EmployerController.class)
-                    .delete(abstractEmployerDto.getId())).withRel("delete"));
-        }
-        if (!hideLinksDto.isDeleteJoinUser())
-        {
-            abstractEmployerDto.add(WebMvcLinkBuilder.linkTo(methodOn(EmployerController.class)
-                            .deleteEmployerJoinUser(abstractEmployerDto.getId()))
-                    .withRel("deletejoinuser"));
+                    .deleteEmployer(abstractEmployerDto.getId())).withRel("delete"));
         }
         if (!hideLinksDto.isCollection())
         {
             abstractEmployerDto.add(WebMvcLinkBuilder.linkTo(methodOn(EmployerController.class)
-                    .listAll()).withRel(IanaLinkRelations.COLLECTION));
+                    .listAllEmployers()).withRel(IanaLinkRelations.COLLECTION));
         }
-//        if (abstractEmployerDto instanceof EmployerDto) {
-
-//            if (!hideLinksDto.isUser())
-//            {
-//                EmployerDto employerDto = (EmployerDto) abstractEmployerDto;
-//                employerDto.getUser().add(WebMvcLinkBuilder.linkTo(methodOn(UserController.class).findByQuery(employerDto.getUser().getId()))
-//                        .withSelfRel());
-//            }
-//        }
 
         return abstractEmployerDto;
     }

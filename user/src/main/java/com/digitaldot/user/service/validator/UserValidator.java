@@ -27,19 +27,6 @@ public class UserValidator extends AbstractValidator {
         errors = new ArrayList<>();
 
         userDto = (UserDto) obj;
-//        if (obj instanceof EmployerDto)
-//        {
-//            EmployerDto employerDto = (EmployerDto) obj;
-//            userDto = employerDto.getUser();
-//        }
-//        else if (obj instanceof UserDto)
-//        {
-//        }
-//        else
-//        {
-//            return getAllErrors();
-//        }
-
         errors.addAll(super.validate(userDto));
 
         //username
@@ -53,7 +40,7 @@ public class UserValidator extends AbstractValidator {
             errors.add("email is not valid");
         }
         //password
-        if (userDto.getPassword().length() < 4 || userDto.getPassword().length() > 8)
+        if (userDto.getPassword().length() < 4 || userDto.getPassword().length() > 10)
         {
             errors.add("password requires minimum 4 characters and maximum 10");
         }

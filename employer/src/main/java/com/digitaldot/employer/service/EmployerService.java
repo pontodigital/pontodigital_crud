@@ -4,35 +4,34 @@ import com.digitaldot.employer.mapper.EmployerMapper;
 import com.digitaldot.employer.model.Employer;
 import com.digitaldot.employer.model.dto.EmployerDto;
 import com.digitaldot.employer.model.dto.EmployerUpdateDto;
+import com.digitaldot.employer.repository.EmployerRepository;
 import com.digitaldot.employer.service.interfaces.IEmployerService;
 import com.digitaldot.utils.hateos.HideLinksUtils;
 import com.digitaldot.validator.exceptions.ApiException;
 import com.digitaldot.validator.exceptions.ValidatorErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Service
 public class EmployerService implements IEmployerService {
 
-//    @Autowired
-//    private EmployerRepository repository;
-
-//    @Autowired
-//    private IUserService userService;
-
+    @Autowired
+    private EmployerRepository repository;
     @Autowired
     private EmployerMapper employerMapper;
-
-//    @Autowired
-//    private UserMapper userMapper;
-
     @Autowired
     private HideLinksUtils hideLinksUtils;
 
     @Override
-    public CollectionModel<EmployerDto> listAll() throws ApiException, ValidatorErrorException {
+    public CollectionModel<EmployerDto> listAllEmployers() throws ApiException, ValidatorErrorException {
 
 //        return employerMapper.toCollectionLinkDto(
 //                employerMapper.toArrayDto(employerRepository.findAll())
@@ -41,44 +40,40 @@ public class EmployerService implements IEmployerService {
     }
 
     @Override
-    public EmployerDto findByQuery(String query) throws ApiException, ValidatorErrorException {
+    public EmployerDto findByQueryEmployer(String query) throws ApiException, ValidatorErrorException {
 
-//        Optional<Employer> employer = employerRepository.findById(query);
-//        if (employer.isPresent()) {
-//            return (EmployerDto) employerMapper.toLinkDto(
-//                    employerMapper.toDto(employer.get()), hideLinksUtils.hideId()
-//            );
-//        }
-//
-//        return (EmployerDto) employerMapper.toLinkDto(
-//                employerMapper.toDto(Optional.ofNullable(employerRepository.findByDocument(query))
-//                        .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value()))),
-//                hideLinksUtils.hideId()
-//        );
-        return null;
+        if (query.matches("[0-9]+")) {
+            Optional<Employer> employer = repository.findById(Long.valueOf(query));
+            if (employer.isPresent()) {
+                return (EmployerDto) employerMapper.toLinkDto(
+                        employerMapper.toDto(employer.get()), hideLinksUtils.hideId()
+                );
+            }
+        }
+
+        return (EmployerDto) employerMapper.toLinkDto(
+                employerMapper.toDto(Optional.ofNullable(repository.findByDocument(query))
+                        .orElseThrow( () ->new ApiException("employer not found", HttpStatus.NOT_FOUND.value()))),
+                hideLinksUtils.hideId()
+        );
     }
 
     @Override
-    public EmployerDto createJoinUser(EmployerDto employerDto) throws ApiException, ValidatorErrorException {
+    public EmployerDto createEmployer(EmployerDto employerDto) throws ApiException, ValidatorErrorException {
 
-//        if (isNull(employerDto.getUser())) {
-//            throw new ApiException("user is null", HttpStatus.NOT_FOUND.value());
-//        }
-//        Employer employerExists = employerRepository.findByDocument(employerDto.getDocument());
-//        if (nonNull(employerExists)) {
-//            throw new ApiException("employee already exists", HttpStatus.BAD_REQUEST.value());
-//        }
-//        employerDto.setUser(userService.createUser(employerDto.getUser()));
+        Employer employerExists = repository.findByDocument(employerDto.getDocument());
+        if (nonNull(employerExists)) {
+            throw new ApiException("employee already exists", HttpStatus.BAD_REQUEST.value());
+        }
 
         Employer employer = employerMapper.toDomain(employerDto);
-//        repository.save(employer);
-//
-//        return (EmployerDto) employerMapper.toLinkDto(employerMapper.toDto(employerDomain));
-        return null;
+        employer = repository.save(employer);
+
+        return (EmployerDto) employerMapper.toLinkDto(employerMapper.toDto(employer));
     }
 
     @Override
-    public EmployerUpdateDto update(String id, EmployerUpdateDto employerUpdate) throws ApiException, ValidatorErrorException {
+    public EmployerUpdateDto updateEmployer(String id, EmployerUpdateDto employerUpdate) throws ApiException, ValidatorErrorException {
 
 //        Employer employer = employerRepository.findById(id)
 //                .orElseThrow( () -> new ApiException("employer not found", HttpStatus.NOT_FOUND.value()));
@@ -107,17 +102,17 @@ public class EmployerService implements IEmployerService {
     }
 
     @Override
-    public void delete(String id) throws ApiException, ValidatorErrorException {
-        this.findByQuery(id);
+    public void deleteEmployer(String id) throws ApiException, ValidatorErrorException {
+        this.findByQueryEmployer(id);
 //        employerRepository.deleteById(id);
     }
 
-    @Transactional
-    @Override
-    public void deleteEmployerJoinUser(String id) throws ApiException, ValidatorErrorException {
+//    @Transactional
+//    @Override
+//    public void deleteEmployerJoinUser(String id) throws ApiException, ValidatorErrorException {
 
 //        EmployerDto employerDto = this.findByQuery(id);
 //        userService.deleteUser(employerDto.getUser().getId());
 //        employerRepository.deleteById(id);
-    }
+//    }
 }

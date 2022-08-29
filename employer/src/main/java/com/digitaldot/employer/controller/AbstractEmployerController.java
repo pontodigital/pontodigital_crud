@@ -22,49 +22,43 @@ public abstract class AbstractEmployerController {
 //    private IValidator validator;
 
     @GetMapping("/find")
-    public ResponseEntity<CollectionModel<EmployerDto>> listAll() throws ApiException, ValidatorErrorException {
+    public ResponseEntity<CollectionModel<EmployerDto>> listAllEmployers() throws ApiException, ValidatorErrorException {
         //todo -> paginacao
-        return ResponseEntity.ok(employerService.listAll());
+        return ResponseEntity.ok(employerService.listAllEmployers());
     }
 
     @GetMapping("/find/query")
-    public ResponseEntity<EmployerDto> findByQuery(@RequestParam(name = "value") String query)
+    public ResponseEntity<EmployerDto> findByQueryEmployer(@RequestParam(name = "value") String query)
             throws ApiException, ValidatorErrorException {
 
-        return ResponseEntity.ok(employerService.findByQuery(query)) ;
+        return ResponseEntity.ok(employerService.findByQueryEmployer(query)) ;
     }
 
-    @PostMapping("/create/join-user")
-    public ResponseEntity<EmployerDto> createJoinUser(@RequestBody EmployerDto employer)
+    @PostMapping("/create")
+    public ResponseEntity<EmployerDto> createEmployer(@RequestBody EmployerDto employer)
             throws ApiException, ValidatorErrorException {
 
 //        if (validator.hasErros(employer)) {
 //            throw new ValidatorErrorException(validator.getAllErrors(), HttpStatus.BAD_REQUEST.value());
 //        }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(employerService.createJoinUser(employer));
+        return ResponseEntity.status(HttpStatus.CREATED).body(employerService.createEmployer(employer));
     }
 
     @PutMapping(path = "/update/{id}")
-    public ResponseEntity<EmployerUpdateDto> update(@PathVariable String id, @RequestBody EmployerUpdateDto employer)
+    public ResponseEntity<EmployerUpdateDto> updateEmployer(@PathVariable String id, @RequestBody EmployerUpdateDto employer)
             throws ApiException, ValidatorErrorException {
 
 //        if (validator.hasErros(employer)) {
 //            throw new ValidatorErrorException(validator.getAllErrors(), HttpStatus.BAD_REQUEST.value());
 //        }
 
-        return ResponseEntity.ok(employerService.update(id, employer));
+        return ResponseEntity.ok(employerService.updateEmployer(id, employer));
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) throws ApiException, ValidatorErrorException {
-        employerService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping(value = "/delete/join-user/{id}")
-    public ResponseEntity<Void> deleteEmployerJoinUser(@PathVariable String id) throws ApiException, ValidatorErrorException {
-        employerService.deleteEmployerJoinUser(id);
+    public ResponseEntity<Void> deleteEmployer(@PathVariable String id) throws ApiException, ValidatorErrorException {
+        employerService.deleteEmployer(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -22,12 +22,12 @@ public abstract class AbstractUserController {
     private IUserService userService;
     @Autowired
     private HeadersUtil headersUtil;
-
-        @Autowired
+    @Autowired
     private IValidator validator;
 
     @GetMapping("/findAll")
-    public ResponseEntity<CollectionModel<UserDto>> listAll(@PageableDefault(size = 5) Pageable page) throws ApiException, ValidatorErrorException {
+    public ResponseEntity<CollectionModel<UserDto>> listAll(@PageableDefault(size = 5) Pageable page)
+            throws ApiException, ValidatorErrorException {
 
             PageUserDto pageUserDto = userService.listAll(page);
             HttpHeaders headers = headersUtil.getHeadersPage(String.valueOf(pageUserDto.getItens()),
@@ -38,8 +38,8 @@ public abstract class AbstractUserController {
     }
 
     @GetMapping("/find/query")
-    public ResponseEntity<UserDto> findByQuery(@RequestParam(name = "value") String query)
-            throws ApiException, ValidatorErrorException {
+    public ResponseEntity<UserDto> findByQuery(@RequestParam(name = "value") String query) throws ApiException,
+            ValidatorErrorException {
 
         return ResponseEntity.ok(userService.findByQuery(query));
     }
@@ -53,9 +53,9 @@ public abstract class AbstractUserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
     }
 
-    @PutMapping("/edit/{id}")
-    public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody UserDto userDto)
-            throws ApiException, ValidatorErrorException {
+    @PutMapping("/update/{id}")
+    public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody UserDto userDto) throws ApiException,
+            ValidatorErrorException {
 
         if (validator.hasErros(userDto)) {
             throw new ValidatorErrorException(validator.getAllErrors(), HttpStatus.BAD_REQUEST.value());

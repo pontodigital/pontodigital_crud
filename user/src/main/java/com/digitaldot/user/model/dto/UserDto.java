@@ -16,6 +16,7 @@ public class UserDto extends RepresentationModel<UserDto> {
     private boolean acceptedTerms;
     @JsonProperty("active")
     private boolean isActive;
+    private Long employerId;
 
     public long getId() {
         return id;
@@ -65,4 +66,11 @@ public class UserDto extends RepresentationModel<UserDto> {
         isActive = active;
     }
 
+    public Long getEmployerId() {
+        return employerId;
+    }
+
+    public void setEmployerId(Long employerId) {
+        this.employerId = employerId;
+    }
 }
